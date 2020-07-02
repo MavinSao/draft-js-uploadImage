@@ -55,8 +55,8 @@ export default class App extends Component {
                 alt: { present: true, mandatory: false },
                 inputAccept: 'image/jpeg,image/jpg,image/png',
                 defaultSize: {
-                  height: '300px',
-                  width: '300px',
+                  height: 'auto',
+                  width: '100%',
                 },
               }
             }}
