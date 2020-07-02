@@ -61,8 +61,12 @@ export default class App extends Component {
               }
             }}
             onEditorStateChange={this.onEditorStateChange}
-
           />
+
+          {/* <div style={ dangerouslySetInnerHTML={{
+            __html: this.state.dataHtml
+          }}></div> */}
+
           <textarea
             style={{ width: "100%", margin: "auto" }}
             cols="50"
