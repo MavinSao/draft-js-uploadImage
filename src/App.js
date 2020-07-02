@@ -2,35 +2,30 @@ import React, { Component } from 'react'
 import axios from 'axios'
 import { Editor } from 'react-draft-wysiwyg';
 import '../node_modules/react-draft-wysiwyg/dist/react-draft-wysiwyg.css';
-import { convertFromRaw } from 'draft-js';
-
-const content = {
-  "entityMap": {},
-  "blocks": [{
-    "key": "637gr", "text": "Initialized from content state.",
-    "type": "unstyled",
-    "depth": 0, "inlineStyleRanges": [],
-    "entityRanges": [],
-    "data": {}
-  }]
-};
+import draftToHtml from 'draftjs-to-html';
+import htmlToDraft from 'html-to-draftjs';
+import { EditorState, convertToRaw, ContentState } from 'draft-js';
 
 export default class App extends Component {
 
-  constructor() {
-    super()
-    const contentState = convertFromRaw(content);
-    this.state = {
-      contentState,
+  constructor(props) {
+    super(props);
+    const html = '';
+    const contentBlock = htmlToDraft(html);
+    if (contentBlock) {
+      const contentState = ContentState.createFromBlockArray(contentBlock.contentBlocks);
+      const editorState = EditorState.createWithContent(contentState);
+      this.state = {
+        editorState,
+      };
     }
-    this.onContentStateChange = this.onContentStateChange.bind(this)
-
   }
 
-  onContentStateChange = (data) => {
+  onEditorStateChange = (editorState) => {
     this.setState({
-      contentState: data
-    })
+      editorState,
+      dataHtml: draftToHtml(convertToRaw(editorState.getCurrentContent()))
+    });
   };
 
   uploadImageCallBack(file) {
@@ -47,40 +42,41 @@ export default class App extends Component {
   }
 
   render() {
-
+    const { editorState } = this.state;
     return (
-      <div style={{ width: "50%", margin: "auto" }}>
-        <div>
-          <Editor
-            wrapperClassName="wrapper-class"
-            editorClassName="editor-class"
-            toolbarClassName="toolbar-class"
-            toolbar={{
-              inline: { inDropdown: true },
-              list: { inDropdown: true },
-              textAlign: { inDropdown: true },
-              link: { inDropdown: true },
-              history: { inDropdown: true },
-              image: {
-                uploadCallback: this.uploadImageCallBack,
-                previewImage: true,
-                alt: { present: true, mandatory: false },
-                inputAccept: 'image/jpeg,image/jpg,image/png',
-                defaultSize: {
-                  height: '300px',
-                  width: '300px',
-                },
-              }
-            }}
+      <div>
+        <Editor
+          editorState={editorState}
+          wrapperClassName="demo-wrapper"
+          editorClassName="demo-editor"
+          toolbar={{
+            inline: { inDropdown: true },
+            list: { inDropdown: true },
+            textAlign: { inDropdown: true },
+            link: { inDropdown: true },
+            history: { inDropdown: true },
+            image: {
+              uploadCallback: this.uploadImageCallBack,
+              previewImage: true,
+              alt: { present: true, mandatory: false },
+              inputAccept: 'image/jpeg,image/jpg,image/png',
+              defaultSize: {
+                height: '300px',
+                width: '300px',
+              },
+            }
+          }}
+          onEditorStateChange={this.onEditorStateChange}
 
-            onContentStateChange={this.onContentStateChange}
-            onTab={(event) => {
-              console.log(event);
-            }}
-          />
-        </div>
+        />
+        <textarea
+          rows={30}
+          cols={50}
+          disabled
+          value={draftToHtml(convertToRaw(editorState.getCurrentContent()))}
+        />
       </div>
-    )
+    );
   }
 }
 
