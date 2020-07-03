@@ -4,6 +4,9 @@ import { Editor } from 'react-draft-wysiwyg';
 import draftToHtml from 'draftjs-to-html';
 import axios from 'axios'
 import '../node_modules/react-draft-wysiwyg/dist/react-draft-wysiwyg.css';
+import parse from 'html-react-parser';
+import SyntaxHighlighter from 'react-syntax-highlighter';
+import { docco } from 'react-syntax-highlighter/dist/esm/styles/hljs';
 
 export default class App extends Component {
 
@@ -11,6 +14,8 @@ export default class App extends Component {
     super(props);
     this.state = {
       editorState: EditorState.createEmpty(),
+      dataHtml: '',
+      dataArr: []
     }
   }
 
@@ -18,7 +23,11 @@ export default class App extends Component {
     this.setState({
       editorState,
       dataHtml: draftToHtml(convertToRaw(editorState.getCurrentContent()))
+    }, () => {
+      this.splitContent()
     });
+
+
   };
 
   uploadImageCallBack(file) {
@@ -34,11 +43,24 @@ export default class App extends Component {
       });
   }
 
+  splitContent = () => {
+    const content = this.state.dataHtml
+    var dataSlipt = content.split(/\n/)
+    this.setState({
+      dataArr: [...dataSlipt]
+    })
+  }
+
   render() {
     const { editorState } = this.state;
+    let regex = /^<pre>/;
+
     return (
       <div>
+
         <div style={{ width: "50%", margin: "auto" }}>
+          <h1>Render Content Here</h1>
+
           <Editor
             editorState={editorState}
             wrapperClassName="demo-wrapper"
@@ -62,18 +84,16 @@ export default class App extends Component {
             }}
             onEditorStateChange={this.onEditorStateChange}
           />
-
-          {/* <div style={ dangerouslySetInnerHTML={{
-            __html: this.state.dataHtml
-          }}></div> */}
-
-          <textarea
+          {
+            this.state.dataArr.map((data) => <div>{regex.test(data) ? <SyntaxHighlighter language="javascript" style={docco}>{parse(data).props.children ? parse(data).props.children : ''}</SyntaxHighlighter> : parse(data)}</div>)
+          }
+          {/* <textarea
             style={{ width: "100%", margin: "auto" }}
             cols="50"
             rows="30"
             disabled
             value={this.state.dataHtml}
-          />
+          /> */}
         </div>
       </div>
     );
