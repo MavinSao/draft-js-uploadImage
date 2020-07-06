@@ -6,10 +6,10 @@ import axios from 'axios'
 import '../node_modules/react-draft-wysiwyg/dist/react-draft-wysiwyg.css';
 import parse from 'html-react-parser';
 import SyntaxHighlighter from 'react-syntax-highlighter';
+import sanitizeHtml from 'sanitize-html'
 import { docco } from 'react-syntax-highlighter/dist/esm/styles/hljs';
 
 export default class App extends Component {
-
   constructor(props) {
     super(props);
     this.state = {
@@ -51,16 +51,32 @@ export default class App extends Component {
     })
   }
 
+  cleanHtmlString = (html) => {
+    var clean = sanitizeHtml(html, {
+      allowedTags: ['br', 'div'],
+    });
+    var tagsToReplace = {
+      '&amp;': '&',
+      '&lt;': '<',
+      '&gt;': '>',
+      '<br />': '\n',
+    };
+    var cleanHtml = clean.replace(/<br \/>/g, '\n').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&');
+
+    return cleanHtml
+  }
+
   render() {
     const { editorState } = this.state;
     let regex = /^<pre>/;
-
     return (
       <div>
 
         <div style={{ width: "50%", margin: "auto" }}>
           <h1>Render Content Here</h1>
-
+          <div style={{ margin: "0px 20px" }}>{
+            this.state.dataArr.map((data) => <div>{regex.test(data) ? <SyntaxHighlighter language="javascript" style={docco}>{this.cleanHtmlString(data)}</SyntaxHighlighter> : parse(data)}</div>)
+          }</div>
           <Editor
             editorState={editorState}
             wrapperClassName="demo-wrapper"
@@ -84,16 +100,13 @@ export default class App extends Component {
             }}
             onEditorStateChange={this.onEditorStateChange}
           />
-          {
-            this.state.dataArr.map((data) => <div>{regex.test(data) ? <SyntaxHighlighter language="javascript" style={docco}>{parse(data).props.children ? parse(data).props.children : ''}</SyntaxHighlighter> : parse(data)}</div>)
-          }
-          {/* <textarea
+          <textarea
             style={{ width: "100%", margin: "auto" }}
             cols="50"
             rows="30"
             disabled
             value={this.state.dataHtml}
-          /> */}
+          />
         </div>
       </div>
     );

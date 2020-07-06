@@ -20,7 +20,8 @@
     "react-draft-wysiwyg": "^1.14.5",
     "react-jsx-parser": "^1.25.1",
     "react-scripts": "3.4.1",
-    "react-syntax-highlighter": "^12.2.1"
+    "react-syntax-highlighter": "^12.2.1",
+    "sanitize-html": "^1.27.0"
   },
   "scripts": {
     "start": "react-scripts start",
