@@ -55,12 +55,6 @@ export default class App extends Component {
     var clean = sanitizeHtml(html, {
       allowedTags: ['br', 'div'],
     });
-    var tagsToReplace = {
-      '&amp;': '&',
-      '&lt;': '<',
-      '&gt;': '>',
-      '<br />': '\n',
-    };
     var cleanHtml = clean.replace(/<br \/>/g, '\n').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&');
 
     return cleanHtml
